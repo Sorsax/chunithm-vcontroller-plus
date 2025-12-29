@@ -1,4 +1,7 @@
 #pragma once
+#ifndef __FUNCSIG__
+#define __FUNCSIG__ __FUNCTION__
+#endif
 #define log_debug(fmt, ...) log("DEBUG", fmt, ## __VA_ARGS__)
 #define log_info(fmt, ...) log("INFO ", fmt, ## __VA_ARGS__)
 #define log_notice(fmt, ...) log("NOTE ", fmt, ## __VA_ARGS__)

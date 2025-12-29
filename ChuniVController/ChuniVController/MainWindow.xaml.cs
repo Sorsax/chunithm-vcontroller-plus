@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Configuration;
 using NHotkey;
 using NHotkey.Wpf;
 
@@ -35,7 +36,12 @@ namespace ChuniVController
         public MainWindow()
         {
             InitializeComponent();
-            cio = new ChuniIO("127.0.0.1", 24864, handleRecv);
+            var ip = ConfigurationManager.AppSettings["ServerIp"];
+            var portStr = ConfigurationManager.AppSettings["ServerPort"];
+            if (string.IsNullOrWhiteSpace(ip)) ip = "127.0.0.1";
+            int port = 24864;
+            if (!int.TryParse(portStr, out port)) port = 24864;
+            cio = new ChuniIO(ip, port, handleRecv);
             cio.Start();
 
             HotkeyManager.Current.AddOrReplace("Lock", Key.L, ModifierKeys.Alt, ToggleLockWindow);

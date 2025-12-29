@@ -1,0 +1,19 @@
+# Simple MinGW-w64 makefile to build CHUNIIO.dll without Visual Studio
+
+# Default to 64-bit MinGW-w64 toolchain
+CC ?= x86_64-w64-mingw32-g++
+CFLAGS ?= -O2 -DNDEBUG -DCHUNIIO_EXPORTS
+LDFLAGS ?= -shared -lws2_32
+
+SRC := chuniio.cc
+TARGET := CHUNIIO.dll
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+$(TARGET): $(SRC) chuniio.h log.h
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)
+
+clean:
+	del /Q $(TARGET) 2> NUL || true
