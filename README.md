@@ -1,173 +1,180 @@
-chunithm-vcontroller
+ChuniVController Plus
 ---
 
-A touch-based virtual controller for Chunithm. The simulated 16-keys touchpad maps from A to P. The space above emulates the IR sensor. The screenshot below shows how it looks in-game. 
+A modern touch-based virtual controller for Chunithm with support for LAN play and webcam-based air note detection.
 
-![screenshot](https://raw.githubusercontent.com/Nat-Lab/chunithm-vcontroller/master/doc/screenshot.png)
+## Features
 
-There are a few options available at the bottom of the window. Here's what they do:
+- **16-key Touchpad**: Maps keys A–P on your screen for slider input
+- **Air Sensor Support**: Click/touch the sensor area above the keyboard, or use a webcam for hand detection
+- **LAN Support**: Play on a different machine than your server over local network
+- **Webcam IR Detection**: Automatic hand/motion detection via webcam for air notes (experimental)
+- **Customizable Layout**: Adjust key width, height, and sensor size on the fly
+- **Window Controls**: Opacity adjustment, window lock, and more
 
-Item|Description
----|---
-Key width|Controls how wide the keys are. 
-Key length|Controls how long (tall) the keys are.
-Sensor height|Controls how tall the IR sensor area is.
-Apply|Apply width & height settings. 
-Opacity|Controls window opacity.
-Allow Mouse|Allow the mouse to interact with virtual keys. The virtual controller only accepts touch control by default. 
-Lock Window|Lock the window in the current position. (disable dragging)
-Coin|Insert coin.
-Service|Service button.
-Test|Test button.
-S+T|Press "Service" and "Test" at the same time.
-Exit|Exit.
+## Quick Start
 
-### Usage
+1. **Get the DLL**: Replace your game's `chuniio.dll` with the one from this project
+2. **Run the EXE**: Execute `ChuniVController Plus.exe` on the client machine
+3. **Start the game**: Run your Chunithm game server (with the custom DLL loaded)
 
-Downloads are available on the [release](https://github.com/Nat-Lab/chunithm-vcontroller/releases) page. Replace the "chuniio.dll" in your game folder with the one provided in the zip file. Run ChuniVController.exe, then start the game as you usually would.
+The client will connect to `127.0.0.1:24864` by default. See [LAN Setup](#lan-setup) to connect over a network.
 
-The modified `chuniio.dll` binds on UDP port 24864 and listens for incoming IO messages. `ChuniVController.exe` connects to it on the localhost. The protocol specification can be found [here](https://github.com/Nat-Lab/chunithm-vcontroller/blob/master/ChuniVController/ChuniIO/chuniio.h). It should be straightforward to create other clients. (e.g., touchscreen tablet client)
+## Usage
 
-#### LAN Setup
+### Basic Controls
 
-To run over a LAN, ensure the server machine is running the modified `chuniio.dll` (it listens on all interfaces by default).
+| Action | Method |
+|--------|--------|
+| **Slider keys** | Click/touch the 16 rectangles (A–P) |
+| **Air sensors** | Click/touch the sensor area at the top (or use webcam) |
+| **Coin insert** | Click the "Coin" button |
+| **Test/Service** | Use the buttons in the control panel |
 
-On the client machine, edit `ChuniVController/ChuniVController/App.config` and set:
+### Control Panel Options
 
-```
+| Option | Description |
+|--------|-------------|
+| Key width | Adjust slider key width |
+| Key height | Adjust slider key height |
+| Sensor height | Adjust IR sensor area height |
+| Apply | Apply layout changes |
+| Opacity | Adjust window transparency (Alt+O) |
+| Allow Mouse | Enable mouse interaction (disabled by default; uses touch) |
+| Lock Window | Prevent window dragging (Alt+L) |
+| Coin | Insert a coin |
+| Service | Press service button |
+| Test | Press test button |
+| S+T | Press service + test simultaneously |
+| Exit | Close the application |
+
+## LAN Setup
+
+To connect to the game server on a different machine:
+
+1. Ensure the server machine is running the modified `chuniio.dll`
+2. On the client machine, edit [ChuniVController/ChuniVController/App.config](ChuniVController/ChuniVController/App.config):
+
+```xml
 <appSettings>
-	<add key="ServerIp" value="192.168.1.100" />
-	<add key="ServerPort" value="24864" />
+  <add key="ServerIp" value="192.168.1.100" />
+  <add key="ServerPort" value="24864" />
 </appSettings>
 ```
 
-Replace `ServerIp` with the server’s LAN IP. `ServerPort` defaults to `24864` if omitted or invalid.
+3. Replace `192.168.1.100` with your server's LAN IP
+4. Run `ChuniVController Plus.exe`
+5. On the server, allow inbound UDP on port 24864 in Windows Firewall
 
-Then run `ChuniVController.exe`. The client will connect to the configured IP/port.
+## Webcam Air Notes (Experimental)
 
-### Build (Windows)
+Use a webcam to automatically detect hand motions for air notes instead of clicking/touching.
 
-Prerequisites (fresh install):
-- Visual Studio Community (or Build Tools)
-	- Workloads: “.NET Desktop Development” and “Desktop development with C++”
-	- Include Windows 10/11 SDK and MSVC toolset (v142 or newer). If v142 is missing, you can retarget to the installed toolset in Visual Studio.
-- .NET Framework 4.7.2 Developer Pack (installed with the workload or separately)
+### Setup
 
-Option A: Visual Studio IDE:
-- Open the solution at [ChuniVController/ChuniVController.sln](ChuniVController/ChuniVController.sln).
-- Restore NuGet packages (right-click the solution → Restore NuGet Packages).
-- Select `Release|x64` to build the C++ `CHUNIIO` DLL for 64-bit.
-- Build the solution.
-- Outputs:
-	- DLL: [ChuniVController/ChuniIO/x64/Release/CHUNIIO.dll](ChuniVController/ChuniIO/x64/Release/CHUNIIO.dll)
-	- EXE: [ChuniVController/ChuniVController/bin/Release/ChuniVController.exe](ChuniVController/ChuniVController/bin/Release/ChuniVController.exe)
+1. Enable in [ChuniVController/ChuniVController/App.config](ChuniVController/ChuniVController/App.config):
 
-Option: Command line:
-- Open “Developer PowerShell for VS” or a PowerShell with VS Build Tools on PATH.
-- Restore packages, then build:
+```xml
+<add key="WebcamEnabled" value="true" />
+<add key="WebcamDeviceIndex" value="0" />
+<add key="WebcamMotionThreshold" value="20" />
+<add key="WebcamBottomDeadzonePercent" value="15" />
+```
+
+2. Position your webcam above the play area, pointing straight down
+3. Run the controller — a popup confirms webcam detection started
+4. Wave your hands over the 6 zones to trigger air notes
+
+### Configuration
+
+| Setting | Range | Default | Notes |
+|---------|-------|---------|-------|
+| `WebcamEnabled` | true/false | false | Enable/disable webcam detection |
+| `WebcamDeviceIndex` | 0–N | 0 | Camera index (0 = first webcam) |
+| `WebcamMotionThreshold` | 10–30 | 20 | Sensitivity to pixel changes (lower = more sensitive) |
+| `WebcamBottomDeadzonePercent` | 0–50 | 15 | Ignore bottom % of frame to reduce false triggers |
+
+**Tips:**
+- Lower `WebcamMotionThreshold` (10–15) for faster response
+- Increase `WebcamBottomDeadzonePercent` (20–30) if your body triggers false detections
+- Good lighting and a plain background improve accuracy
+- The frame is divided into 6 vertical zones; motion triggers the corresponding IR sensor
+
+### Technical Details
+
+- Uses AForge.NET for DirectShow webcam capture (.NET Framework 4.7.2 compatible)
+- Motion detection via frame differencing (no machine learning)
+- Runs at ~30 FPS for responsive detection
+- Sends `IR_BLOCKED`/`IR_UNBLOCKED` UDP messages to the game server
+
+## Building
+
+### Minimum Requirements
+
+- Visual Studio Build Tools 2022 (or Visual Studio Community)
+  - ".NET Desktop Development" workload
+  - .NET Framework 4.7.2 Developer Pack
+- NuGet CLI (for package restoration)
+
+### Build Command
 
 ```powershell
-# From the repo root
-nuget.exe restore "ChuniVController\ChuniVController.sln"
-msbuild "ChuniVController\ChuniVController.sln" /p:Configuration=Release /p:Platform=x64
+# Find MSBuild and compile
+$vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+& "$vs\MSBuild\Current\Bin\MSBuild.exe" "ChuniVController\ChuniVController\ChuniVController.csproj" /p:Configuration=Release
 ```
 
-Deployment:
-- Copy `CHUNIIO.dll` to your game folder, replacing the original `chuniio.dll`.
-- Edit [ChuniVController/ChuniVController/App.config](ChuniVController/ChuniVController/App.config) for LAN (see above), then run `ChuniVController.exe`.
-- Ensure Windows Firewall allows inbound UDP on port `24864` on the server machine.
+**Output:** [ChuniVController/ChuniVController/bin/Release/ChuniVController Plus.exe](ChuniVController/ChuniVController/bin/Release/)
 
-Notes:
-- Server DLL changes: not needed. It already binds to all interfaces (`INADDR_ANY`).
-- Client changes: not required beyond setting `ServerIp`/`ServerPort` in `App.config` (defaults: `127.0.0.1:24864`).
-- If the C++ project complains about toolset `v142`, you can install the v142 toolset in the VS Installer or retarget the project to the installed toolset (e.g., v143) via Project Properties.
+### Build Without Visual Studio
 
-### Build Without Visual Studio (DLL only)
+If you want to build only the server DLL (no UI), use MSYS2 + MinGW:
 
-If you don't want Visual Studio, you can build `CHUNIIO.dll` using MSYS2 + MinGW‑w64:
+1. Install MSYS2 (https://www.msys2.org/)
+2. Open "MSYS2 MinGW x64" and run:
 
-1) Install MSYS2 (https://www.msys2.org/) and open the "MSYS2 MinGW x64" shell.
-2) Install the toolchain:
-
-```
+```bash
 pacman -S --needed mingw-w64-x86_64-gcc
-```
-
-3) Build the DLL in the project folder:
-
-```
 cd /d/Webbivelhoilut/chunithm-vcontroller-lan/ChuniVController/ChuniIO
 make -f Makefile.mingw
 ```
 
-This produces `CHUNIIO.dll` in the same folder. Copy it to your game directory (replace `chuniio.dll`).
+Output: `CHUNIIO.dll` in the same folder
 
-Client EXE (WPF) still needs MSBuild/Visual Studio to compile. If you prefer avoiding Visual Studio entirely, you can use the prebuilt release EXE, or we can refactor the project to SDK‑style so it builds with the .NET SDK. 
+## How It Works
 
-### Webcam Air Notes (Experimental)
+- **Server DLL (`chuniio.dll`)**: Listens on UDP port 24864, receives control messages from the client, and relays them to the game
+- **Client EXE**: Captures your input (touches, clicks, or webcam motion) and sends UDP messages to the server
+- **Protocol**: Simple binary format with message type, target (key/sensor), and data (LED color for feedback)
 
-The controller supports using a webcam for air note detection via motion tracking. Position your webcam above the play area looking down, and it will detect hand motion in 6 horizontal zones (matching the 6 IR sensors).
+See [ChuniVController/ChuniIO/chuniio.h](ChuniVController/ChuniIO/chuniio.h) for protocol details.
 
-**Setup:**
-1. Enable in [ChuniVController/ChuniVController/App.config](ChuniVController/ChuniVController/App.config):
-```xml
-<add key="WebcamEnabled" value="true" />
-<add key="WebcamDeviceIndex" value="0" />
-<add key="WebcamMotionThreshold" value="25" />
-```
+## Troubleshooting
 
-2. Mount your webcam above the play area, looking straight down
-3. Start the controller — a popup will confirm webcam detection started
-4. Wave hands over different zones to test detection
+| Issue | Solution |
+|-------|----------|
+| Build fails with "MSBuild not found" | Install Visual Studio Build Tools 2022 |
+| Webcam not detected | Check `WebcamDeviceIndex` (start at 0); try increasing by 1 if you have multiple cameras |
+| Webcam triggers too easily | Increase `WebcamMotionThreshold` or `WebcamBottomDeadzonePercent` |
+| LAN connection fails | Verify server IP, ensure firewall allows UDP 24864, check network connectivity |
+| DLL not loading | Confirm you replaced the original `chuniio.dll` in your game directory |
 
-**Settings:**
-- `WebcamDeviceIndex`: 0 for first webcam, 1 for second, etc.
-- `WebcamMotionThreshold`: 15-50 (lower = more sensitive, higher = less noise)
-- The frame is divided into 6 vertical zones; motion in each zone triggers the corresponding IR sensor
+## License
 
-**Notes:**
-- Uses AForge.NET for .NET Framework 4.7.2 compatibility
-- Simple motion detection via frame differencing (no ML/hand tracking)
-- Good lighting and clear background improve accuracy
-- For better precision, consider adding MediaPipe hand tracking later
+This project is licensed under the GNU General Public License v2.0 (GPLv2).
 
-### Webcam IR Detection (Experimental)
+See the [LICENSE](LICENSE) file for the full license text.
 
-The controller now supports webcam-based hand detection for "air notes" (IR sensors) instead of using mouse/touch.
+## Forks & Attribution
 
-**How it works:**
-- Captures webcam frames at ~30 FPS
-- Divides the frame into 6 horizontal zones matching the 6 IR sensors
-- Detects motion via frame differencing
-- Sends `IR_BLOCKED`/`IR_UNBLOCKED` messages when hands are detected
+If you fork or modify this project, please kindly mention this work and the original project in your fork's README or release notes. A short attribution like the following is appreciated:
 
-**Configuration (App.config):**
-```xml
-<appSettings>
-  <add key="WebcamEnabled" value="true" />
-  <add key="WebcamDeviceIndex" value="0" />
-  <add key="WebcamMotionThreshold" value="25" />
-</appSettings>
-```
+"Based on ChuniVController Plus — original project: Nat-Lab/chunithm-vcontroller (plus edition enhancements)."
 
-- `WebcamEnabled`: Set to `true` to enable webcam IR detection
-- `WebcamDeviceIndex`: Webcam device index (0 for default camera)
-- `WebcamMotionThreshold`: Motion sensitivity threshold (15-50, lower = more sensitive)
+Thank you it helps others find the original source and preserves credit for improvements.
 
-**Requirements:**
-- .NET Framework 4.8 (upgrade from 4.7.2)
-- OpenCvSharp4 4.5.5+ (installed via NuGet)
-- Webcam with sufficient frame rate
+## Credits
 
-**Build notes:**
-- Requires .NET Framework 4.8 Developer Pack: `winget install --id Microsoft.DotNet.Framework.DeveloperPack_4 --version 4.8.1`
-- After installing, rebuild the solution
+Original project: [Nat-Lab/chunithm-vcontroller](https://github.com/Nat-Lab/chunithm-vcontroller)
 
-**Position the webcam:**
-- Mount webcam above your play area looking down
-- Ensure all 6 zones are visible in frame
-- Wave your hands over zones to test detection
-
-### License
-
-UNLICENSE
+Plus Edition: Added LAN support, webcam air note detection, and improved configurability
